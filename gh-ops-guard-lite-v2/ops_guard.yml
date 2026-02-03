@@ -1,0 +1,55 @@
+# GH Ops Guard Lite configuration
+
+required_env:
+  # Add env var names that MUST be present at runtime (in Actions pass them via env:)
+  - OPENAI_API_KEY
+  - DEEPSEEK_API_KEY
+
+secret_scan:
+  enabled: true
+  include_globs:
+    - "**/*.py"
+    - "**/*.js"
+    - "**/*.ts"
+    - "**/*.json"
+    - "**/*.yml"
+    - "**/*.yaml"
+    - "**/*.md"
+    - "**/*.txt"
+    - "**/*.env"
+  exclude_globs:
+    - ".git/**"
+    - ".venv/**"
+    - "node_modules/**"
+    - "dist/**"
+    - "build/**"
+    - "**/*.png"
+    - "**/*.jpg"
+    - "**/*.jpeg"
+    - "**/*.webp"
+    - "**/*.gif"
+    - "**/*.pdf"
+  patterns:
+    - name: "OpenAI-style key"
+      regex: "sk-[A-Za-z0-9]{20,}"
+    - name: "Private key block"
+      regex: "-----BEGIN (RSA |EC |OPENSSH )?PRIVATE KEY-----"
+    - name: "Generic api_key assignment"
+      regex: "(?i)api[_-]?key\s*[:=]\s*['\"]?[A-Za-z0-9_\-]{16,}['\"]?"
+    - name: "Generic token assignment"
+      regex: "(?i)(token|secret)\s*[:=]\s*['\"]?[A-Za-z0-9_\-]{20,}['\"]?"
+    - name: "AWS access key id"
+      regex: "AKIA[0-9A-Z]{16}"
+    - name: "GitHub token-like"
+      regex: "(ghp|gho|ghu|ghs|ghr)_[A-Za-z0-9]{30,}"
+
+workflow_waste_scan:
+  enabled: true
+  max_sleep_seconds: 300  # fail if any sleep exceeds this
+  workflow_globs:
+    - ".github/workflows/*.yml"
+    - ".github/workflows/*.yaml"
+
+action_pinning:
+  enabled: true
+  mode: "warn"  # warn | fail
